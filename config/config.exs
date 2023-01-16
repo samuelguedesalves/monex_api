@@ -11,6 +11,10 @@ config :monex_api,
   ecto_repos: [MonexApi.Repo],
   generators: [binary_id: true]
 
+config :monex_api, MonexApi.Repo,
+  migration_primary_key: [type: :binary_id],
+  migration_foreign_key: [type: :binary_id]
+
 # Configures the endpoint
 config :monex_api, MonexApiWeb.Endpoint,
   url: [host: "localhost"],
