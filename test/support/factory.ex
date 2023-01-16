@@ -10,4 +10,11 @@ defmodule MonexApi.Factory do
     }
   end
 
+  def transaction_params_factory do
+    %{
+      "amount" => 2000,
+      "from_user" => Ecto.UUID.generate(),
+      "to_user" => Ecto.UUID.generate()
+    }
+  end
 end

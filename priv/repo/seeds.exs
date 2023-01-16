@@ -1,11 +1,5 @@
-# Script for populating the database. You can run it as:
-#
-#     mix run priv/repo/seeds.exs
-#
-# Inside the script, you can read and write to any of your
-# repositories directly:
-#
-#     MonexApi.Repo.insert!(%MonexApi.SomeSchema{})
-#
-# We recommend using the bang functions (`insert!`, `update!`
-# and so on) as they will fail if something goes wrong.
+alias MonexApi.{User, Repo}
+
+user_params = %{email: "admin@monex.com", name: "admin", password: "123456", amount: 200_000_000}
+
+user_params |> User.changeset_create() |> Repo.insert!()
