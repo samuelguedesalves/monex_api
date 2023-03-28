@@ -1,7 +1,7 @@
 defmodule MonexApi.User.UpdateTest do
   use MonexApi.DataCase, async: true
 
-  alias MonexApi.{User, Error}
+  alias MonexApi.{Error, User}
 
   import MonexApi.Factory
 

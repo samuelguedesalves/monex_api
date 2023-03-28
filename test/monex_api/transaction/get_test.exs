@@ -1,7 +1,7 @@
 defmodule MonexApi.Transaction.GetTest do
   use MonexApi.DataCase, async: true
 
-  alias MonexApi.{User, Transaction, Repo, Error}
+  alias MonexApi.{Error, Repo, Transaction, User}
 
   import MonexApi.Factory
 

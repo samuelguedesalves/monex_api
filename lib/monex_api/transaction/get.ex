@@ -9,8 +9,8 @@ defmodule MonexApi.Transaction.Get do
         where: t.id == ^transaction_id and (t.from_user == ^user_id or t.to_user == ^user_id)
 
     case Repo.one(query) do
-      nil -> Error.build(:bad_request, "transaction is not found")
-      %Transaction{} = transaction -> transaction
+      nil -> {:error, "transaction is not found"}
+      %Transaction{} = transaction -> {:ok, transaction}
     end
   end
 
@@ -29,12 +29,13 @@ defmodule MonexApi.Transaction.Get do
 
     transactions = Repo.all(query)
 
-    %{
-      page: page,
-      transactions: transactions,
-      quantity: length(transactions),
-      next_page: page + 1,
-      previous_page: (fn -> if page > 1, do: page - 1, else: 1 end).()
-    }
+    {:ok,
+     %{
+       page: page,
+       transactions: transactions,
+       quantity: length(transactions),
+       next_page: page + 1,
+       previous_page: (fn -> if page > 1, do: page - 1, else: 1 end).()
+     }}
   end
 end

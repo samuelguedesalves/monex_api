@@ -5,8 +5,14 @@ defmodule MonexApiWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/api", MonexApiWeb do
+  scope "/api" do
     pipe_through :api
+
+    forward "/graphql", Absinthe.Plug, schema: MonexApiWeb.Schema
+
+    forward "/graphiql", Absinthe.Plug.GraphiQL,
+      schema: MonexApiWeb.Schema,
+      interface: :playground
   end
 
   # Enables LiveDashboard only for development
