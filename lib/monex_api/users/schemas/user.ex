@@ -1,4 +1,4 @@
-defmodule MonexApi.User do
+defmodule MonexApi.Users.Schemas.User do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -20,9 +20,9 @@ defmodule MonexApi.User do
   end
 
   @doc false
-  def changeset_create(attrs) do
+  def changeset_create(attributes) do
     %__MODULE__{}
-    |> cast(attrs, @fields)
+    |> cast(attributes, @fields)
     |> validate_required(@fields)
     |> validate_length(:first_name, min: 2, max: 12)
     |> validate_length(:last_name, min: 2, max: 12)
@@ -36,9 +36,9 @@ defmodule MonexApi.User do
     |> put_password_hash()
   end
 
-  def changeset_update(%__MODULE__{} = user, attrs) do
+  def changeset_update(%__MODULE__{} = user, attributes) do
     user
-    |> cast(attrs, @fields)
+    |> cast(attributes, @fields)
     |> validate_length(:first_name, min: 2, max: 12)
     |> validate_length(:last_name, min: 2, max: 12)
     |> validate_length(:password, min: 6, max: 30)
