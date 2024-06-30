@@ -3,15 +3,16 @@ defmodule MonexApi.Repo.Migrations.CreateUsers do
 
   def change do
     create table(:users) do
-      add :name, :string, null: false
+      add :first_name, :string, null: false
+      add :last_name, :string, null: false
       add :email, :string, null: false
-      add :amount, :integer, null: false
+      add :balance, :integer, null: false
       add :password_hash, :string, null: false
 
       timestamps()
     end
 
     create unique_index(:users, [:email])
-    create constraint(:users, :amount_must_be_positive, check: "amount > 0")
+    create constraint(:users, :balance_must_be_positive, check: "balance >= 0")
   end
 end

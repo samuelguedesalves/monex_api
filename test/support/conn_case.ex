@@ -17,6 +17,8 @@ defmodule MonexApiWeb.ConnCase do
 
   use ExUnit.CaseTemplate
 
+  @endpoint MonexApiWeb.Endpoint
+
   using do
     quote do
       # Import conveniences for testing with connections
@@ -34,5 +36,34 @@ defmodule MonexApiWeb.ConnCase do
   setup tags do
     MonexApi.DataCase.setup_sandbox(tags)
     {:ok, conn: Phoenix.ConnTest.build_conn()}
+  end
+
+  @doc """
+  Runs a GraphQL query
+  """
+  def run_graphql(conn, query_or_mutation, variables \\ %{}) do
+    import Phoenix.ConnTest
+
+    conn
+    |> post("/api", %{"query" => query_or_mutation, "variables" => variables})
+    |> json_response(200)
+    |> case do
+      %{"errors" => errors} = response ->
+        {:error, Enum.map(errors, &Map.delete(&1, "locations")), response["data"]}
+
+      response ->
+        {:ok, response["data"]}
+    end
+  end
+
+  @doc """
+  Adds authentication headers to the given Plug.Conn.
+  """
+  def authenticated(conn, user) do
+    Plug.Conn.put_req_header(
+      conn,
+      "authorization",
+      "Bearer #{MonexApiWeb.AuthToken.create(user)}"
+    )
   end
 end

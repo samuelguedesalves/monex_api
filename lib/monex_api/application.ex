@@ -10,8 +10,6 @@ defmodule MonexApi.Application do
     children = [
       # Start the Ecto repository
       MonexApi.Repo,
-      # Start the Telemetry supervisor
-      MonexApiWeb.Telemetry,
       # Start the PubSub system
       {Phoenix.PubSub, name: MonexApi.PubSub},
       # Start the Endpoint (http/https)
