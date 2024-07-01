@@ -1,6 +1,9 @@
 defmodule MonexApiWeb.Schema.UsersTest do
   use MonexApiWeb.ConnCase, async: false
 
+  alias MonexApi.Repo
+  alias MonexApi.Users.User
+
   import MonexApi.Factory
 
   @create_user """
@@ -27,7 +30,6 @@ defmodule MonexApiWeb.Schema.UsersTest do
           first_name: "Samuel",
           last_name: "Guedes",
           email: "guedes.works7@gmail.com",
-          balance: 2024,
           password: "123456"
         }
       }
@@ -37,7 +39,7 @@ defmodule MonexApiWeb.Schema.UsersTest do
       assert %{
                "createUser" => %{
                  "user" => %{
-                   "balance" => 2024,
+                   "balance" => 10_000,
                    "email" => "guedes.works7@gmail.com",
                    "first_name" => "Samuel",
                    "id" => _id,
@@ -73,9 +75,13 @@ defmodule MonexApiWeb.Schema.UsersTest do
   describe "mutation: auth_user" do
     setup do
       user_params = build(:user_params)
-      {:ok, user} = MonexApi.Users.create_user(user_params)
 
-      %{email: user.email, password: user_params["password"]}
+      user =
+        user_params
+        |> User.changeset_create()
+        |> Repo.insert!()
+
+      %{email: user.email, password: user_params.password}
     end
 
     test "when user successfully authenticated", %{conn: conn, email: email, password: password} do
@@ -92,8 +98,8 @@ defmodule MonexApiWeb.Schema.UsersTest do
                "authUser" => %{
                  "token" => user_token,
                  "user" => %{
-                   "balance" => 2000,
-                   "email" => "samuel.guedes@gmail.com",
+                   "balance" => 10_000,
+                   "email" => "samuel.guedes@email.com",
                    "first_name" => "Samuel",
                    "id" => _id,
                    "inserted_at" => _inserted_at,
@@ -139,8 +145,7 @@ defmodule MonexApiWeb.Schema.UsersTest do
       alias MonexApi.Repo
       alias MonexApi.Users.User
 
-      %User{} =
-        user =
+      user =
         build(:user_params)
         |> User.changeset_create()
         |> Repo.insert!()

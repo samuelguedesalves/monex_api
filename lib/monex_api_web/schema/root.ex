@@ -1,9 +1,9 @@
 defmodule MonexApiWeb.Schema.Root do
   use Absinthe.Schema.Notation
 
+  alias MonexApiWeb.Middlewares.Authentication
   alias MonexApiWeb.Resolvers.Operations, as: OperationsResolver
   alias MonexApiWeb.Resolvers.User, as: UsersResolver
-  alias MonexApiWeb.Middlewares.Authentication
 
   # custom types
   import_types MonexApiWeb.Schema.Types.Custom.UUID4

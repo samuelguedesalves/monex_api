@@ -159,7 +159,7 @@ defmodule MonexApi.Users do
   @spec auth_user(email :: String.t(), password :: String.t()) ::
           {:ok, %{user: User.t(), token: String.t()}} | {:error, :erro_while_authentication}
   def auth_user(email, password) when is_bitstring(email) and is_bitstring(password) do
-    with %User{} = user <- get_user_by_email(email),
+    with {:ok, user} <- get_user_by_email(email),
          true <- Pbkdf2.verify_pass(password, user.password_hash),
          token when is_bitstring(token) <- AuthToken.create(user) do
       Logger.info("[USERS] user successfully authenticated")

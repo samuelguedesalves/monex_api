@@ -15,20 +15,11 @@ defmodule MonexApi.UsersTest do
     end
 
     test "when missing a params, should return an error" do
-      params = build(:user_params) |> Map.delete("email")
+      params = build(:user_params) |> Map.delete(:email)
 
       assert {:error, %Ecto.Changeset{} = changeset} = Users.create_user(params)
 
       expected_changeset_errors = %{email: ["can't be blank"]}
-      assert errors_on(changeset) == expected_changeset_errors
-    end
-
-    test "when balance not is positive, should return an error" do
-      params = build(:user_params, %{"balance" => -1})
-
-      {:error, changeset} = Users.create_user(params)
-
-      expected_changeset_errors = %{balance: ["balance must be positive"]}
       assert errors_on(changeset) == expected_changeset_errors
     end
   end
@@ -64,12 +55,12 @@ defmodule MonexApi.UsersTest do
     end
 
     test "when user email are valid, should return an user struct", %{email: email} do
-      assert %User{} = Users.get_user_by_email(email)
+      assert {:ok, %User{}} = Users.get_user_by_email(email)
     end
 
     test "when user id are invalid, should return error" do
-      invalid_user_email = "invalid.email@example.com"
-      assert nil == Users.get_user_by_email(invalid_user_email)
+      invalid_user_email = "invalid@email.com"
+      assert {:error, "user not found"} == Users.get_user_by_email(invalid_user_email)
     end
   end
 
@@ -132,7 +123,7 @@ defmodule MonexApi.UsersTest do
 
       %User{id: user_id} = params |> User.changeset_create() |> Repo.insert!()
 
-      %{user_id: user_id, email: params["email"], password: params["password"]}
+      %{user_id: user_id, email: params.email, password: params.password}
     end
 
     test "when params are valid, should return access authorization token to user", %{

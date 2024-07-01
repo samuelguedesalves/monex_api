@@ -1,31 +1,31 @@
 defmodule MonexApi.OperationsTest do
   use MonexApi.DataCase, async: true
 
-  alias MonexApi.Repo
   alias MonexApi.Operations
   alias MonexApi.Operations.Transaction
+  alias MonexApi.Repo
   alias MonexApi.Users.User
 
   import MonexApi.Factory
 
   describe "get_transaction_by_id/2" do
     setup do
-      %User{id: id_user1} =
-        build(:user_params)
+      %User{id: id_user01} =
+        build(:user_params, %{email: "user01@email.com"})
         |> User.changeset_create()
         |> Repo.insert!()
 
-      %User{id: id_user2} =
-        build(:user_params, %{"email" => "some2@gmail.com"})
+      %User{id: id_user02} =
+        build(:user_params, %{email: "user02@email.com"})
         |> User.changeset_create()
         |> Repo.insert!()
 
       %Transaction{id: id_transaction} =
-        build(:transaction_params, %{"from_user" => id_user1, "to_user" => id_user2})
+        build(:transaction_params, %{from_user: id_user01, to_user: id_user02})
         |> Transaction.changeset()
         |> Repo.insert!()
 
-      %{id_user: id_user1, id_transaction: id_transaction}
+      %{id_user: id_user01, id_transaction: id_transaction}
     end
 
     test "when transacion and user id are valid, should return the transaction", %{
@@ -60,27 +60,27 @@ defmodule MonexApi.OperationsTest do
 
   describe "list_transactions_by_user_id/2" do
     setup do
-      %User{id: id_user1} =
-        build(:user_params)
+      %User{id: id_user01} =
+        build(:user_params, %{email: "user01@email.com"})
         |> User.changeset_create()
         |> Repo.insert!()
 
-      %User{id: id_user2} =
-        build(:user_params, %{"email" => "some2@gmail.com"})
+      %User{id: id_user02} =
+        build(:user_params, %{email: "user02@email.com"})
         |> User.changeset_create()
         |> Repo.insert!()
 
       %Transaction{} =
-        build(:transaction_params, %{"from_user" => id_user1, "to_user" => id_user2})
+        build(:transaction_params, %{from_user: id_user01, to_user: id_user02})
         |> Transaction.changeset()
         |> Repo.insert!()
 
       %Transaction{} =
-        build(:transaction_params, %{"from_user" => id_user2, "to_user" => id_user1})
+        build(:transaction_params, %{from_user: id_user02, to_user: id_user01})
         |> Transaction.changeset()
         |> Repo.insert!()
 
-      %{id_user: id_user1}
+      %{id_user: id_user01}
     end
 
     test "when user id are valid, should return map with transactions", %{id_user: id_user1} do
@@ -115,24 +115,22 @@ defmodule MonexApi.OperationsTest do
 
   describe "create_transaction/1" do
     setup do
-      %User{} =
-        user01 =
-        build(:user_params)
+      {:ok, sender_user} =
+        build(:user_params, %{email: "sender.user@email.com"})
         |> User.changeset_create()
-        |> Repo.insert!()
+        |> Repo.insert()
 
-      %User{} =
-        user02 =
-        build(:user_params, %{"email" => "some2@gmail.com"})
+      {:ok, receiver_user} =
+        build(:user_params, %{email: "receiver.user@email.com"})
         |> User.changeset_create()
-        |> Repo.insert!()
+        |> Repo.insert()
 
-      %{user01: user01, user02: user02}
+      %{sender_user: sender_user, receiver_user: receiver_user}
     end
 
     test "when all params are valid, should return a valid transaction struct", %{
-      user01: sender_user,
-      user02: receiver_user
+      sender_user: sender_user,
+      receiver_user: receiver_user
     } do
       params = %{
         amount: 1000,
@@ -148,7 +146,7 @@ defmodule MonexApi.OperationsTest do
     end
 
     test "when receiver user id are invalid, should return a error struct with changeset", %{
-      user01: sender_user
+      sender_user: sender_user
     } do
       invalid_receiver_user_id = 99
 
@@ -162,8 +160,8 @@ defmodule MonexApi.OperationsTest do
     end
 
     test "when amount param not is positive, should return a error struct with changeset", %{
-      user01: sender_user,
-      user02: receiver_user
+      sender_user: sender_user,
+      receiver_user: receiver_user
     } do
       params = %{
         amount: 0,

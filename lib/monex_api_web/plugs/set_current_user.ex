@@ -5,8 +5,8 @@ defmodule MonexApiWeb.Plugs.SetCurrentUser do
 
   import Plug.Conn
 
-  alias MonexApiWeb.AuthToken
   alias MonexApi.Users
+  alias MonexApiWeb.AuthToken
 
   def init(opts), do: opts
 

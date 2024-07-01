@@ -5,10 +5,10 @@ defmodule MonexApi.Operations do
 
   import Ecto.Query
 
-  alias MonexApi.Repo
   alias MonexApi.Operations.Transaction
-  alias MonexApi.Users.User
+  alias MonexApi.Repo
   alias MonexApi.Users
+  alias MonexApi.Users.User
 
   require Logger
 

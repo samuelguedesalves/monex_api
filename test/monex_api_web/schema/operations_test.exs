@@ -1,6 +1,10 @@
 defmodule MonexApiWeb.Schema.OperationsTest do
   use MonexApiWeb.ConnCase, async: false
 
+  alias MonexApi.Operations.Transaction
+  alias MonexApi.Repo
+  alias MonexApi.Users.User
+
   import MonexApi.Factory
 
   @transactions_from_user """
@@ -23,30 +27,29 @@ defmodule MonexApiWeb.Schema.OperationsTest do
 
   describe "query: transactions_from_user" do
     setup do
-      {:ok, sender_user} = MonexApi.Users.create_user(build(:user_params))
+      {:ok, sender_user} =
+        build(:user_params, %{email: "sender@email.com"})
+        |> User.changeset_create()
+        |> Repo.insert()
 
       {:ok, receiver_user} =
-        :user_params
-        |> build(%{"email" => "guedes.samuel@gmail.com"})
+        build(:user_params, %{email: "receiver@email.com"})
         |> MonexApi.Users.create_user()
 
       {:ok, _transaction01} =
-        MonexApi.Operations.create_transaction(sender_user, %{
-          amount: 100,
-          user_id: receiver_user.id
-        })
+        build(:transaction_params, %{from_user: sender_user.id, to_user: receiver_user.id})
+        |> Transaction.changeset()
+        |> Repo.insert()
 
       {:ok, _transaction02} =
-        MonexApi.Operations.create_transaction(receiver_user, %{
-          amount: 100,
-          user_id: sender_user.id
-        })
+        build(:transaction_params, %{from_user: receiver_user.id, to_user: sender_user.id})
+        |> Transaction.changeset()
+        |> Repo.insert()
 
       {:ok, _transaction03} =
-        MonexApi.Operations.create_transaction(sender_user, %{
-          amount: 100,
-          user_id: receiver_user.id
-        })
+        build(:transaction_params, %{from_user: sender_user.id, to_user: receiver_user.id})
+        |> Transaction.changeset()
+        |> Repo.insert()
 
       %{user: sender_user}
     end
@@ -102,14 +105,17 @@ defmodule MonexApiWeb.Schema.OperationsTest do
 
   describe "mutation: create_transaction" do
     setup do
-      {:ok, user} = MonexApi.Users.create_user(build(:user_params))
+      {:ok, sender_user} =
+        build(:user_params, %{email: "sender.user@email.com"})
+        |> User.changeset_create()
+        |> Repo.insert()
 
-      {:ok, user01} =
-        :user_params
-        |> build(%{"email" => "guedes.samuel@gmail.com"})
-        |> MonexApi.Users.create_user()
+      {:ok, receiver_user} =
+        build(:user_params, %{email: "receiver.user@email.com"})
+        |> User.changeset_create()
+        |> Repo.insert()
 
-      %{sender_user: user, receiver_user_id: user01.id}
+      %{sender_user: sender_user, receiver_user_id: receiver_user.id}
     end
 
     test "when transaction successfully created", %{
@@ -170,18 +176,20 @@ defmodule MonexApiWeb.Schema.OperationsTest do
 
   describe "query: transaction" do
     setup do
-      {:ok, sender_user} = MonexApi.Users.create_user(build(:user_params))
+      {:ok, sender_user} =
+        build(:user_params, %{email: "sender.user@email.com"})
+        |> User.changeset_create()
+        |> Repo.insert()
 
       {:ok, receiver_user} =
-        :user_params
-        |> build(%{"email" => "guedes.samuel@gmail.com"})
-        |> MonexApi.Users.create_user()
+        build(:user_params, %{email: "receiver.user@email.com"})
+        |> User.changeset_create()
+        |> Repo.insert()
 
       {:ok, transaction} =
-        MonexApi.Operations.create_transaction(sender_user, %{
-          amount: 100,
-          user_id: receiver_user.id
-        })
+        build(:transaction_params, %{from_user: sender_user.id, to_user: receiver_user.id})
+        |> Transaction.changeset()
+        |> Repo.insert()
 
       %{user: sender_user, transaction_id: transaction.id}
     end
