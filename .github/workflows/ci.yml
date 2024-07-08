@@ -90,6 +90,10 @@ jobs:
       - name: Check Formatting
         run: mix format --check-formatted
 
+      # Step: Check if code follow the patterns of credo
+      - name: Run Credo
+        run: mix credo --strict
+
       # Step: Execute the tests.
       - name: Run tests
         run: mix test

@@ -12,17 +12,17 @@ defmodule MonexApi.Users do
   @doc """
   create_user(params)
 
-  example of the usage:
+  # Example of the usage:
 
-      params = %{
-        "first_name" => "Samuel",
-        "last_name" => "Guedes",
-        "email" => "example@email.com",
-        "balance" => 500000,
-        "password" => "123456"
-      }
+      iex> params = %{
+            "first_name" => "Samuel",
+            "last_name" => "Guedes",
+            "email" => "example@email.com",
+            "balance" => 500000,
+            "password" => "123456"
+          }
 
-      create_user(params)
+      iex> create_user(params)
   """
   @spec create_user(params :: Map.t()) :: {:ok, User.t()} | {:error, Ecto.Changeset.t()}
   def create_user(params) do
@@ -45,14 +45,15 @@ defmodule MonexApi.Users do
   @doc """
   get_user_by_id(params)
 
-  example of the usage:
+  # Example of the usage:
 
-      user_id = 99
-      get_user_by_id(user_id)
+      iex> user_id = 99
+      iex> get_user_by_id(user_id)
+      %User{} | nil
   """
   @spec get_user_by_id(id :: Integer.t()) :: User.t() | nil
   def get_user_by_id(id) when is_integer(id) do
-    Logger.info("user will be getted with following id: #{inspect(id)}")
+    Logger.info("user will be read with following id: #{inspect(id)}")
 
     case Repo.get(User, id) do
       result when is_nil(result) ->
@@ -68,14 +69,15 @@ defmodule MonexApi.Users do
   @doc """
   get_user_by_email(email)
 
-  example of the usage:
+  # Example of the usage:
 
-      user_email = "example@email.com"
-      get_user_by_email(user_email)
+      iex> user_email = "example@email.com"
+      iex> get_user_by_email(user_email)
+      %User{} | nil
   """
   @spec get_user_by_email(email :: String.t()) :: User.t() | nil
   def get_user_by_email(email) when is_bitstring(email) do
-    Logger.info("user will be getted with following email: #{inspect(email)}")
+    Logger.info("user will be read with following email: #{inspect(email)}")
 
     case Repo.get_by(User, email: email) do
       nil ->
@@ -91,14 +93,15 @@ defmodule MonexApi.Users do
   @doc """
   update_user_balance(user, new_balance)
 
-  example of the usage:
+  # Example of the usage:
 
-      user = %User{}
-      new_balance = 999_999
-      update_user_balance(user, new_balance)
+      iex> user = %User{}
+      iex> new_balance = 999_999
+      iex> update_user_balance(user, new_balance)
+      {:ok, %User{}} | {:error, %Ecto.Changeset{}}
   """
   @spec update_user_balance(user :: User.t(), new_balance :: Integer.t()) ::
-          {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
+          {:ok, User.t()} | {:error, Ecto.Changeset.t()}
   def update_user_balance(%User{} = user, new_balance) do
     user
     |> User.changeset_update(%{balance: new_balance})
@@ -117,20 +120,20 @@ defmodule MonexApi.Users do
   @doc """
   update_user(user, attrs)
 
-  example of the usage:
+  # Example of the usage:
 
-      user = %User{}
-      attrs = %{
-        "first_name" => "Samuel",
-        "last_name" => "Guedes",
-        "email" => "example@email.com",
-        "balance" => 500000,
-        "password" => "123456"
-      }
-
-      update_user(user, attrs)
+      iex> user = %User{}
+      iex> attrs = %{
+            "first_name" => "Samuel",
+            "last_name" => "Guedes",
+            "email" => "example@email.com",
+            "balance" => 500000,
+            "password" => "123456"
+          }
+      iex> update_user(user, attrs)
+      {:ok, %User{}} | {:error, %Ecto.Changeset{}}
   """
-  @spec update_user(User.t(), Map.t()) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
+  @spec update_user(User.t(), Map.t()) :: {:ok, User.t()} | {:error, Ecto.Changeset.t()}
   def update_user(%User{} = user, attrs) do
     user
     |> User.changeset_update(attrs)
@@ -149,15 +152,15 @@ defmodule MonexApi.Users do
   @doc """
   auth_user(email, password)
 
-  example of the usage:
+  # Example of the usage:
 
-      email = "example@email.com"
-      password = "123456"
-
-      auth_user(user, password)
+      iex> email = "example@email.com"
+      iex> password = "123456"
+      iex> auth_user(user, password)
+      {:ok, %{user: %User{}, token: "..."}} | {:error, reason}
   """
   @spec auth_user(email :: String.t(), password :: String.t()) ::
-          {:ok, %{user: User.t(), token: String.t()}} | {:error, :erro_while_authentication}
+          {:ok, %{user: User.t(), token: String.t()}} | {:error, :error_while_authentication}
   def auth_user(email, password) when is_bitstring(email) and is_bitstring(password) do
     with {:ok, user} <- get_user_by_email(email),
          true <- Pbkdf2.verify_pass(password, user.password_hash),
@@ -167,7 +170,7 @@ defmodule MonexApi.Users do
     else
       error ->
         Logger.error("failed to authenticate user due: #{inspect(error)}")
-        {:error, :erro_while_authentication}
+        {:error, :error_while_authentication}
     end
   end
 end

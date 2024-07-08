@@ -32,8 +32,7 @@ defmodule MonexApi.OperationsTest do
       id_user: id_user,
       id_transaction: id_transaction
     } do
-      assert {:ok, %Transaction{} = transaction} =
-               Operations.get_transaction_by_id(id_transaction, id_user)
+      assert {:ok, %Transaction{} = transaction} = Operations.get_transaction_by_id(id_transaction, id_user)
 
       assert transaction.id == id_transaction
     end
@@ -45,11 +44,9 @@ defmodule MonexApi.OperationsTest do
       invalid_transaction_id = 99
       invalid_user_id = 99
 
-      result_with_invalid_transaction_id =
-        Operations.get_transaction_by_id(invalid_transaction_id, id_user)
+      result_with_invalid_transaction_id = Operations.get_transaction_by_id(invalid_transaction_id, id_user)
 
-      result_with_invalid_user_id =
-        Operations.get_transaction_by_id(id_transaction, invalid_user_id)
+      result_with_invalid_user_id = Operations.get_transaction_by_id(id_transaction, invalid_user_id)
 
       expected_result = {:error, "transaction is not found"}
 
@@ -137,8 +134,7 @@ defmodule MonexApi.OperationsTest do
         user_id: receiver_user.id
       }
 
-      assert {:ok, %Transaction{} = transaction} =
-               Operations.create_transaction(sender_user, params)
+      assert {:ok, %Transaction{} = transaction} = Operations.create_transaction(sender_user, params)
 
       assert transaction.amount == params.amount
       assert transaction.from_user == sender_user.id
@@ -168,8 +164,7 @@ defmodule MonexApi.OperationsTest do
         user_id: receiver_user.id
       }
 
-      assert {:error, %Ecto.Changeset{} = changeset} =
-               Operations.create_transaction(sender_user, params)
+      assert {:error, %Ecto.Changeset{} = changeset} = Operations.create_transaction(sender_user, params)
 
       expected_changeset_errors = %{amount: ["amount must be positive"]}
 

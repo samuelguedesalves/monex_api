@@ -8,8 +8,7 @@ defmodule MonexApiWeb.Schema.Operations do
     field :from_user, non_null(:integer), description: "user that sender the transaction"
     field :to_user, non_null(:integer), description: "user that receiver the transaction"
 
-    field :processed_at, non_null(:datetime),
-      description: "datetime when the transaction is processed"
+    field :processed_at, non_null(:datetime), description: "datetime when the transaction is processed"
   end
 
   object :transactions_pagination do

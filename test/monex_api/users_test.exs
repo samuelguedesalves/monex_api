@@ -139,7 +139,7 @@ defmodule MonexApi.UsersTest do
       email: email
     } do
       invalid_password = "invalid password"
-      assert {:error, :erro_while_authentication} == Users.auth_user(email, invalid_password)
+      assert {:error, :error_while_authentication} == Users.auth_user(email, invalid_password)
     end
   end
 end

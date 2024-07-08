@@ -15,20 +15,17 @@ defmodule MonexApi.Operations do
   @doc """
   get_transaction_by_id(transaction_id, user_id)
 
-  example of the usage:
+  # Example of the usage:
 
-      transaction_id = 1
-      user_id = 1
-
-      get_transaction_by_id(transaction_id, user_id)
-      # output: {:ok, %Transaction{}} | {:error, reason}
+      iex> transaction_id = 1
+      iex> user_id = 1
+      iex> get_transaction_by_id(transaction_id, user_id)
+      {:ok, %Transaction{}} | {:error, reason}
   """
   @spec get_transaction_by_id(transaction_id :: Integer.t(), user_id :: Integer.t()) ::
           {:ok, Transaction.t()} | {:error, reason :: String.t()}
   def get_transaction_by_id(transaction_id, user_id) do
-    Logger.info(
-      "transaction will be getted. transaction id: \"#{transaction_id}\", and user id: \"#{user_id}\""
-    )
+    Logger.info("transaction will be read. transaction id: '#{transaction_id}', and user id: '#{user_id}'")
 
     Transaction
     |> from()
@@ -36,31 +33,29 @@ defmodule MonexApi.Operations do
     |> Repo.one()
     |> case do
       result when is_nil(result) ->
-        Logger.error(
-          "transaction with id \"#{transaction_id}\", from user with id #{user_id}. was not found"
-        )
+        Logger.error("transaction with id '#{transaction_id}', from user with id '#{user_id}'. was not found")
 
         {:error, "transaction is not found"}
 
       %Transaction{} = transaction ->
-        Logger.info(
-          "transaction with id \"#{transaction_id}\", from user with id \"#{user_id}\". was founded"
-        )
+        Logger.info("transaction with id '#{transaction_id}', from user with id '#{user_id}'. was founded")
 
         {:ok, transaction}
     end
   end
 
+  def list_transactions_by_user_id(user_id, page) when page <= 0,
+    do: list_transactions_by_user_id(user_id, 1)
+
   @doc """
   list_transactions_by_user_id(user_id, page)
 
-  example of the usage:
+  # Example of the usage:
 
-    user_id = 1
-    page = 1
-
-    list_transactions_by_user_id(user_id, page)
-    # output: {:ok, result}
+      iex> user_id = 1
+      iex> page = 1
+      iex> list_transactions_by_user_id(user_id, page)
+      {:ok, result}
   """
   @spec list_transactions_by_user_id(user_id :: Integer.t(), page :: Integer.t()) ::
           {:ok,
@@ -71,19 +66,16 @@ defmodule MonexApi.Operations do
              next_page: Integer.t(),
              previous_page: Integer.t()
            }}
-  def list_transactions_by_user_id(user_id, page) when page <= 0,
-    do: list_transactions_by_user_id(user_id, 1)
-
   def list_transactions_by_user_id(user_id, page) do
     page_size = 10
-    skipe = page * page_size - page_size
+    skip = page * page_size - page_size
 
     transactions =
       Transaction
       |> from()
       |> where([t], t.from_user == ^user_id or t.to_user == ^user_id)
       |> order_by([t], desc: t.processed_at)
-      |> offset(^skipe)
+      |> offset(^skip)
       |> limit(^page_size)
       |> Repo.all()
 
@@ -103,11 +95,12 @@ defmodule MonexApi.Operations do
   @doc """
   create_transaction(sender_user, params)
 
-  example of usage:
+  # Example of usage:
 
-      sender_user = %User{}
-      params = %{amount: 500, user_id: 99}
-      create_transaction(sender_user, params)
+      iex> sender_user = %User{}
+      iex> params = %{amount: 500, user_id: 99}
+      iex> create_transaction(sender_user, params)
+      {:ok, %Transaction{}} | {:error, %Ecto.Changeset{}}
   """
   @spec create_transaction(
           sender_user :: User.t(),
@@ -133,9 +126,7 @@ defmodule MonexApi.Operations do
           Repo.rollback("sender user not found")
 
         :less_than ->
-          Logger.error(
-            "[Operation] error while creating transaction due user balance is less than transaction"
-          )
+          Logger.error("[Operation] error while creating transaction due user balance is less than transaction")
 
           Repo.rollback("sender user not has enough amount")
 

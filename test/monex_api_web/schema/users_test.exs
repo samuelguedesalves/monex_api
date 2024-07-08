@@ -122,7 +122,7 @@ defmodule MonexApiWeb.Schema.UsersTest do
 
       assert {:error, errors, _} = run_graphql(conn, @auth_user, payload)
 
-      assert [%{"message" => "erro_while_authentication"}] = errors
+      assert [%{"message" => "error_while_authentication"}] = errors
     end
   end
 
@@ -192,8 +192,7 @@ defmodule MonexApiWeb.Schema.UsersTest do
 
       assert [
                %{
-                 "message" =>
-                   "Argument \"input\" has invalid value $input.\nIn field \"balance\": Unknown field."
+                 "message" => "Argument \"input\" has invalid value $input.\nIn field \"balance\": Unknown field."
                }
              ] = errors
     end
