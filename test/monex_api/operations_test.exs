@@ -151,7 +151,7 @@ defmodule MonexApi.OperationsTest do
         user_id: invalid_receiver_user_id
       }
 
-      assert {:error, "sender user not found"} ==
+      assert {:error, "receiver user not found"} ==
                Operations.create_transaction(sender_user, params)
     end
 

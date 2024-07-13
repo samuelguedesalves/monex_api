@@ -9,6 +9,7 @@ defmodule MonexApi.Operations do
   alias MonexApi.Repo
   alias MonexApi.Users
   alias MonexApi.Users.User
+  alias Ecto.Multi
 
   require Logger
 
@@ -107,57 +108,85 @@ defmodule MonexApi.Operations do
           params :: %{amount: Integer.t(), user_id: Integer.t()}
         ) :: {:ok, Transaction.t()} | {:error, reason :: Ecto.Changeset.t() | String.t()}
   def create_transaction(%User{} = sender_user, %{amount: amount, user_id: user_id}) do
-    Repo.transaction(fn ->
-      with :greater_or_equal_than <- verify_user_balance(sender_user, amount),
-           %User{} = receiver_user <- Users.get_user_by_id(user_id),
-           {:ok, %Transaction{} = transaction} <-
-             insert_transaction(%{
-               amount: amount,
-               from_user: sender_user.id,
-               to_user: receiver_user.id
-             }),
-           {:ok, %User{}} <- update_sender_user_balance(sender_user, amount),
-           {:ok, %User{}} <- update_receiver_user_balance(receiver_user, amount) do
-        Logger.info("[Operation] transaction successfully created")
-        transaction
-      else
-        nil ->
-          Logger.error("[Operation] error while creating transaction due user not found")
-          Repo.rollback("sender user not found")
-
-        :less_than ->
-          Logger.error("[Operation] error while creating transaction due user balance is less than transaction")
-
-          Repo.rollback("sender user not has enough amount")
-
-        {:error, %Ecto.Changeset{} = changeset} ->
-          Logger.error("[Operation] error while creating transaction due #{inspect(changeset)}")
-          Repo.rollback(changeset)
-
-        error ->
-          Logger.error("[Operation] error while creating transaction due #{inspect(error)}")
-          Repo.rollback("unexpected error is happened")
+    Multi.new()
+    |> Multi.run(:verify_user_balance, fn _repo, _changes ->
+      verify_user_balance(sender_user, amount)
+    end)
+    |> Multi.run(:receiver_user, fn _repo, _changes ->
+      case Users.get_user_by_id(user_id) do
+        nil -> {:error, :receiver_user_not_found}
+        user -> {:ok, user}
       end
     end)
+    |> Multi.run(:insert_transaction, fn _repo, %{receiver_user: receiver_user} ->
+      insert_transaction(%{
+        amount: amount,
+        from_user: sender_user.id,
+        to_user: receiver_user.id
+      })
+    end)
+    |> Multi.run(:update_sender_user_balance, fn _repo, _changes ->
+      update_sender_user_balance(sender_user, amount)
+    end)
+    |> Multi.run(:update_receiver_user_balance, fn _repo, %{receiver_user: receiver_user} ->
+      update_receiver_user_balance(receiver_user, amount)
+    end)
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{insert_transaction: transaction}} ->
+        Logger.info("[Operation] transaction successfully created")
+        {:ok, transaction}
+
+      {:error, :receiver_user, :receiver_user_not_found, _changes} ->
+        Logger.error("[Operation] error while creating transaction. receiver user not found")
+        {:error, "receiver user not found"}
+
+      {:error, :verify_user_balance, :less_than, _changes} ->
+        Logger.error("[Operation] error while creating transaction. user not have balance enough to transaction")
+        {:error, "sender user not have balance enough for transaction"}
+
+      {:error, :insert_transaction, %Ecto.Changeset{} = changeset, _changes} ->
+        Logger.error("[Operation] error while insert transaction due: #{inspect(changeset)}")
+        {:error, changeset}
+
+      {:error, :update_sender_user_balance, %Ecto.Changeset{} = changeset, _changes} ->
+        Logger.error("[Operation] error while update sender user balance due: #{inspect(changeset)}")
+        {:error, changeset}
+
+      {:error, :update_receiver_user_balance, %Ecto.Changeset{} = changeset, _changes} ->
+        Logger.error("[Operation] error while update receiver user balance due: #{inspect(changeset)}")
+        {:error, changeset}
+
+      error ->
+        Logger.error("[Operation] unexpected error happened while creation of transaction: #{inspect(error)}")
+        {:error, "unexpected error while transaction creation"}
+    end
   end
 
-  defp verify_user_balance(%User{balance: balance}, amount) do
+  @spec verify_user_balance(user :: User.t(), amount :: Integer.t()) ::
+          {:error, :less_than} | {:ok, :greater_or_equal_than}
+  defp verify_user_balance(%User{balance: balance} = user, amount) do
     if balance >= amount,
-      do: :greater_or_equal_than,
-      else: :less_than
+      do: {:ok, :greater_or_equal_than},
+      else: {:error, :less_than}
   end
 
+  @spec insert_transaction(attrs :: Map.t()) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
   defp insert_transaction(attrs) do
     attrs
     |> Transaction.changeset()
     |> Repo.insert()
   end
 
+  @spec update_sender_user_balance(user :: User.t(), transaction_amount :: Integer.t()) ::
+          {:ok, MonexApi.Users.User.t()} | {:error, Ecto.Changeset.t()}
   defp update_sender_user_balance(user, transaction_amount) do
     new_user_balance = user.balance - transaction_amount
     Users.update_user_balance(user, new_user_balance)
   end
 
+  @spec update_receiver_user_balance(user :: User.t(), transaction_amount :: Integer.t()) ::
+          {:ok, MonexApi.Users.User.t()} | {:error, Ecto.Changeset.t()}
   defp update_receiver_user_balance(user, transaction_amount) do
     new_user_balance = user.balance + transaction_amount
     Users.update_user_balance(user, new_user_balance)
