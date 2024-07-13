@@ -165,7 +165,7 @@ defmodule MonexApi.Operations do
 
   @spec verify_user_balance(user :: User.t(), amount :: Integer.t()) ::
           {:error, :less_than} | {:ok, :greater_or_equal_than}
-  defp verify_user_balance(%User{balance: balance} = user, amount) do
+  defp verify_user_balance(%User{balance: balance} = _user, amount) do
     if balance >= amount,
       do: {:ok, :greater_or_equal_than},
       else: {:error, :less_than}
