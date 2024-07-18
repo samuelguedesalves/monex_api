@@ -113,10 +113,7 @@ defmodule Monex.Operations do
       verify_user_balance(sender_user, amount)
     end)
     |> Multi.run(:receiver_user, fn _repo, _changes ->
-      case Users.get_user_by_id(user_id) do
-        nil -> {:error, :receiver_user_not_found}
-        user -> {:ok, user}
-      end
+      get_receiver_user(user_id)
     end)
     |> Multi.run(:insert_transaction, fn _repo, %{receiver_user: receiver_user} ->
       insert_transaction(%{
@@ -169,6 +166,14 @@ defmodule Monex.Operations do
     if balance >= amount,
       do: {:ok, :greater_or_equal_than},
       else: {:error, :less_than}
+  end
+
+  @spec get_receiver_user(receiver_user_id :: Integer.t()) :: {:ok, User.t()} | {:error, :receiver_user_not_found}
+  defp get_receiver_user(receiver_user_id) do
+    case Users.get_user_by_id(receiver_user_id) do
+      nil -> {:error, :receiver_user_not_found}
+      user -> {:ok, user}
+    end
   end
 
   @spec insert_transaction(attrs :: Map.t()) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
