@@ -1,6 +1,6 @@
 ![Monex - API](./assets/readme_cover.png)
 
-# MonexApi
+# Monex
 
 This project has created to simulate a finance app where user can made transactions with different values to existents users, and receive transactions too.
 

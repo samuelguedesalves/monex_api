@@ -1,9 +1,9 @@
-defmodule MonexApi.MixProject do
+defmodule Monex.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :monex_api,
+      app: :monex,
       version: "0.1.0",
       elixir: "~> 1.12",
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -17,7 +17,7 @@ defmodule MonexApi.MixProject do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {MonexApi.Application, []},
+      mod: {Monex.Application, []},
       extra_applications: [:logger, :runtime_tools]
     ]
   end
