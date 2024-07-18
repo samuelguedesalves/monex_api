@@ -1,16 +1,16 @@
 # General application configuration
 import Config
 
-config :monex_api, ecto_repos: [MonexApi.Repo]
+config :monex, ecto_repos: [Monex.Repo]
 
 # Configures the endpoint
-config :monex_api, MonexApiWeb.Endpoint,
+config :monex, MonexWeb.Endpoint,
   url: [host: "localhost"],
   render_errors: [
-    formats: [json: MonexApiWeb.ErrorJSON],
+    formats: [json: MonexWeb.ErrorJSON],
     layout: false
   ],
-  pubsub_server: MonexApi.PubSub,
+  pubsub_server: Monex.PubSub,
   live_view: [signing_salt: "611F2uYh"]
 
 # Configures the mailer
@@ -20,14 +20,14 @@ config :monex_api, MonexApiWeb.Endpoint,
 #
 # For production it's recommended to configure a different adapter
 # at the `config/runtime.exs`.
-config :monex_api, MonexApi.Mailer, adapter: Swoosh.Adapters.Local
+config :monex, Monex.Mailer, adapter: Swoosh.Adapters.Local
 
 # Swoosh API client is needed for adapters other than SMTP.
 config :swoosh, :api_client, false
 
 # Configures Elixir's Logger
 config :logger, :console,
-  format: {MonexApi.CustomLoggerFormatter, :format},
+  format: {Monex.CustomLoggerFormatter, :format},
   metadata: [:module]
 
 # Use Jason for JSON parsing in Phoenix

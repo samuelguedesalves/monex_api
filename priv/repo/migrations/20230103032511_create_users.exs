@@ -1,4 +1,4 @@
-defmodule MonexApi.Repo.Migrations.CreateUsers do
+defmodule Monex.Repo.Migrations.CreateUsers do
   use Ecto.Migration
 
   def change do

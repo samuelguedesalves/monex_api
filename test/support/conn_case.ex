@@ -1,4 +1,4 @@
-defmodule MonexApiWeb.ConnCase do
+defmodule MonexWeb.ConnCase do
   @moduledoc """
   This module defines the test case to be used by
   tests that require setting up a connection.
@@ -11,30 +11,30 @@ defmodule MonexApiWeb.ConnCase do
   we enable the SQL sandbox, so changes done to the database
   are reverted at the end of every test. If you are using
   PostgreSQL, you can even run database tests asynchronously
-  by setting `use MonexApiWeb.ConnCase, async: true`, although
+  by setting `use MonexWeb.ConnCase, async: true`, although
   this option is not recommended for other databases.
   """
 
   use ExUnit.CaseTemplate
 
-  @endpoint MonexApiWeb.Endpoint
+  @endpoint MonexWeb.Endpoint
 
   using do
     quote do
       # Import conveniences for testing with connections
       import Plug.Conn
       import Phoenix.ConnTest
-      import MonexApiWeb.ConnCase
+      import MonexWeb.ConnCase
 
-      alias MonexApiWeb.Router.Helpers, as: Routes
+      alias MonexWeb.Router.Helpers, as: Routes
 
       # The default endpoint for testing
-      @endpoint MonexApiWeb.Endpoint
+      @endpoint MonexWeb.Endpoint
     end
   end
 
   setup tags do
-    MonexApi.DataCase.setup_sandbox(tags)
+    Monex.DataCase.setup_sandbox(tags)
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
 
@@ -63,7 +63,7 @@ defmodule MonexApiWeb.ConnCase do
     Plug.Conn.put_req_header(
       conn,
       "authorization",
-      "Bearer #{MonexApiWeb.AuthToken.create(user)}"
+      "Bearer #{MonexWeb.AuthToken.create(user)}"
     )
   end
 end

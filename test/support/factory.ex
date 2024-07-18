@@ -1,5 +1,5 @@
-defmodule MonexApi.Factory do
-  use ExMachina.Ecto, repo: MonexApi.Repo
+defmodule Monex.Factory do
+  use ExMachina.Ecto, repo: Monex.Repo
 
   def user_params_factory do
     %{
