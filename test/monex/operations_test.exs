@@ -166,7 +166,7 @@ defmodule Monex.OperationsTest do
 
       assert {:error, %Ecto.Changeset{} = changeset} = Operations.create_transaction(sender_user, params)
 
-      expected_changeset_errors = %{amount: ["amount must be positive"]}
+      expected_changeset_errors = %{amount: ["must be positive"]}
 
       assert errors_on(changeset) == expected_changeset_errors
     end
