@@ -21,7 +21,7 @@ defmodule Monex.Operations.Transaction do
     |> validate_required(@params)
     |> check_constraint(:amount,
       name: :amount_must_be_positive,
-      message: "amount must be positive"
+      message: "must be positive"
     )
     |> foreign_key_constraint(:to_user)
     |> foreign_key_constraint(:from_user)
