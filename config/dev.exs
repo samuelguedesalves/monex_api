@@ -56,3 +56,15 @@ config :phoenix, :stacktrace_depth, 20
 
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
+
+config :ex_aws,
+  access_key_id: "test",
+  secret_access_key: "test",
+  region: "us-east-1",
+  scheme: "http://",
+  host: "localhost",
+  json_codec: Jason,
+  port: 4566
+
+# Config Swoosh Mailer
+config :monex, Monex.Mailer, adapter: Swoosh.Adapters.ExAwsAmazonSES
