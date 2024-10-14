@@ -67,4 +67,4 @@ config :ex_aws,
   port: 4566
 
 # Config Swoosh Mailer
-config :monex, Monex.Mailer, adapter: Swoosh.Adapters.ExAwsAmazonSES
+config :monex, Monex.Mailer, adapter: Swoosh.Adapters.Local
