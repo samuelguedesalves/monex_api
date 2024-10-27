@@ -23,7 +23,10 @@ erl_crash.dump
 monex-*.tar
 
 # Ignore docker-compose volumes
-volume/
+/volume/
 
 # Ignore vscode
 /.vscode/
+
+# Ignore .env
+/.env
