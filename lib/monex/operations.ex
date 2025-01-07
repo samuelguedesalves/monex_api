@@ -9,6 +9,7 @@ defmodule Monex.Operations do
   alias Monex.Operations.Transaction
   alias Monex.Repo
   alias Monex.Users
+  alias Monex.Users.Email
   alias Monex.Users.User
 
   require Logger
@@ -94,10 +95,9 @@ defmodule Monex.Operations do
   end
 
   @doc """
-  create_transaction(sender_user, params)
+  create_transaction/2
 
-  # Example of usage:
-
+  # Examples:
       iex> sender_user = %User{}
       iex> params = %{amount: 500, user_id: 99}
       iex> create_transaction(sender_user, params)
@@ -127,6 +127,9 @@ defmodule Monex.Operations do
     end)
     |> Multi.run(:update_receiver_user_balance, fn _repo, %{receiver_user: receiver_user} ->
       update_receiver_user_balance(receiver_user, amount)
+    end)
+    |> Multi.run(:send_transaction_notification, fn _repo, %{insert_transaction: transaction} ->
+      send_transaction_notification(transaction)
     end)
     |> Repo.transaction()
     |> case do
@@ -195,5 +198,10 @@ defmodule Monex.Operations do
   defp update_receiver_user_balance(user, transaction_amount) do
     new_user_balance = user.balance + transaction_amount
     Users.update_user_balance(user, new_user_balance)
+  end
+
+  defp send_transaction_notification(transaction) do
+    Email.operation_notification(transaction)
+    {:ok, :notification_queued}
   end
 end

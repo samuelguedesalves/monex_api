@@ -5,7 +5,7 @@ defmodule Monex.Factory do
     %{
       first_name: "Samuel",
       last_name: "Guedes",
-      email: "samuel.guedes@email.com",
+      email: "foo@example.com",
       password: "123456",
       balance: 10_000
     }

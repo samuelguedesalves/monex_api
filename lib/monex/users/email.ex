@@ -1,94 +1,105 @@
 defmodule Monex.Users.Email do
-  use MonexWeb, :view
-  import Swoosh.Email
+  use Phoenix.Swoosh, view: MonexWeb.EmailView
 
   alias Monex.Mailer
+  alias Monex.Operations.Transaction
+  alias Monex.Users.User
+
+  require Logger
 
   @no_reply_email "noreply@monex.com"
-  @theme %{
-    colors: %{
-      primary: "#5B24FF",
-      text: "#111827",
-      background: "#EEEEEE",
-      foreground: "#FFFFFF"
-    }
-  }
 
-  def welcome(%Monex.Users.User{} = user) do
+  @doc """
+  welcome/1
+  send welcome email to user
+
+  # Examples
+      iex> welcome(user)
+      {:ok, :email_sent}
+  """
+  @spec welcome(user :: User.t()) :: {:ok, :emails_sent} | {:error, :error_while_send_email_welcome}
+  def welcome(%User{} = user) do
     new()
     |> to(user.email)
     |> from(@no_reply_email)
     |> subject("Welcome to Monex")
-    |> render_template(:welcome, first_name: user.first_name)
+    |> render_body("welcome.html", %{name: "#{user.first_name} #{user.last_name}"})
+    |> Mailer.deliver()
+    |> case do
+      {:ok, _term} ->
+        Logger.info("welcome email was sent successfully; user id: #{user.id}")
+        {:ok, :emails_sent}
+
+      error ->
+        Logger.error("error while send welcome email; user id: #{user.id}; reason: #{inspect(error)}")
+        {:error, :error_while_send_email_welcome}
+    end
+  end
+
+  @doc """
+  operation_notification/1
+  Send operation notification to both user (sender and receiver)
+
+  # Examples
+      iex> operation_notification(transaction)
+      {:ok, :emails_sent}
+  """
+  @spec operation_notification(transaction :: Transaction.t()) ::
+          {:ok, :emails_sent} | {:error, :error_while_send_email_notification}
+  def operation_notification(%Transaction{} = operation) do
+    transaction = Monex.Repo.preload(operation, [:sender_user, :receiver_user])
+
+    with {:ok, _term} <- send_email_notification_to_transaction_receiver(transaction),
+         {:ok, _term} <- send_email_notification_to_transaction_sender(transaction) do
+      Logger.info("both transaction notification was sent successfully; transaction id: '#{transaction.id}'")
+      {:ok, :emails_sent}
+    else
+      error ->
+        Logger.error(
+          "error while send transaction notifications; transaction id: '#{transaction.id}'; reason: #{inspect(error)}"
+        )
+
+        {:error, :error_while_send_email_notification}
+    end
+  end
+
+  defp send_email_notification_to_transaction_receiver(
+         %{sender_user: sender_user, receiver_user: receiver_user} = transaction
+       ) do
+    title = "Transaction Received."
+    sender_name = Enum.join([sender_user.first_name, sender_user.last_name], " ")
+
+    new()
+    |> to(receiver_user.email)
+    |> from(@no_reply_email)
+    |> subject(title)
+    |> render_body("operation_notification.html", %{
+      title: title,
+      sender_name: sender_name,
+      transaction_id: transaction.id,
+      transaction_value: transaction.amount,
+      operation_nature: :received
+    })
     |> Mailer.deliver()
   end
 
-  defp render_template(email, :welcome, params) do
-    styles = """
-    .title {
-      font-size: 30px;
-      color: #{@theme.colors.primary};
-      line-height: 100%;
-      text-align: center;
-      margin: 0;
-      margin-bottom: 40px;
-      padding: 0;
-    }
-    .message {
-      font-size: 24px;
-      color: #{@theme.colors.text};
-      text-align: center;
-      line-height: 100%;
-      margin: 0;
-      margin-bottom: 20px;
-      padding: 0
-    }
-    .enjoy_app {
-      font-size: 24px;
-      color: #{@theme.colors.text};
-      font-weight: bold;
-      text-align: center;
-      line-height: 100%;
-      text-align: center;
-    }
-    """
+  defp send_email_notification_to_transaction_sender(
+         %{sender_user: sender_user, receiver_user: receiver_user} = transaction
+       ) do
+    title = "Transaction Sent."
+    receiver_name = Enum.join([receiver_user.first_name, receiver_user.last_name], " ")
 
-    content = """
-    <h1 class="title">Welcome to Monex!</h1>
-    <p class="message">
-      Dear, #{Keyword.get(params, :first_name)}.
-      With Monex you can send and receive transactions.
-    </p>
-    <p class="enjoy_app">Enjoy Monex!</p>
-    """
-
-    template = base_layout(content, styles: styles)
-
-    html_body(email, template)
-  end
-
-  defp base_layout(content, configs \\ []) do
-    """
-    <html>
-      <head>
-        <style>
-          html {
-            background-color: #{@theme.colors.background};
-          }
-          body {
-            box-sizing: border-box;
-            font-family: sans-serif;
-            background-color: #{@theme.colors.foreground};
-            width: 100%;
-            max-width: 440px;
-            margin: 12px auto;
-            padding: 12px;
-          }
-          #{Keyword.get(configs, :styles)}
-        </style>
-      </head>
-      <body>#{content}</body>
-    </html>
-    """
+    new()
+    |> to(sender_user.email)
+    |> from(@no_reply_email)
+    |> subject(title)
+    |> render_body("operation_notification.html", %{
+      title: title,
+      receiver_name: receiver_name,
+      transaction_id: transaction.id,
+      transaction_value: transaction.amount,
+      operation_nature: :send
+    })
+    |> Mailer.deliver()
   end
 end

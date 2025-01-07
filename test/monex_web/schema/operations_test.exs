@@ -106,12 +106,12 @@ defmodule MonexWeb.Schema.OperationsTest do
   describe "mutation: create_transaction" do
     setup do
       {:ok, sender_user} =
-        build(:user_params, %{email: "sender.user@email.com"})
+        build(:user_params, %{email: "sender.user@example.com"})
         |> User.changeset_create()
         |> Repo.insert()
 
       {:ok, receiver_user} =
-        build(:user_params, %{email: "receiver.user@email.com"})
+        build(:user_params, %{email: "receiver.user@example.com", first_name: "Nassim", last_name: "Taleb"})
         |> User.changeset_create()
         |> Repo.insert()
 

@@ -1,0 +1,24 @@
+<style type="text/css">
+  :root {
+    --color-primary: #5B24FF;
+    --color-text: #111827;
+    --color-background: #EEEEEE;
+    --color-foreground: #FFFFFF;
+
+    --font: Inter, sans-serif;
+  }
+
+  html {
+    background-color: var(--color-background);
+  }
+
+  body {
+    box-sizing: border-box;
+    font-family: var(--font);
+    background-color: var(--color-foreground);
+    width: 100%;
+    max-width: 440px;
+    margin: 12px auto;
+    padding: 12px;
+  }
+</style>

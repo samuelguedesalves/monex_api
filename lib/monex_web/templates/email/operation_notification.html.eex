@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-   <%= render "base.head.html", %{title: "Welcome to Monex!"} %>
+   <%= render "base.head.html", %{title: @title} %>
    <body>
-      <h1 class="title">Welcome to Monex!</h1>
+      <h1 class="title"><%= @title %></h1>
       <p class="message">
-      Dear, <%= @name %>.
-      With Monex you can send and receive transactions.
+         <%= case @operation_nature do %>
+            <% :send -> %>
+               You was send a transaction to <b><%= @receiver_name %></b>.<br/>
+            <% :received -> %>
+               You was received a transaction from <b><%= @sender_name %></b>.<br/>
+         <% end %>
+        Transaction ID: <%= @transaction_id %><br/>
+        Transaction Value: <%= @transaction_value %>
       </p>
-      <p class="enjoy_app">Enjoy Monex!</p>
    </body>
    <%= render "base.style.html" %>
    <style type="text\css">
@@ -29,15 +34,6 @@
          margin: 0;
          margin-bottom: 20px;
          padding: 0;
-      }
-
-      .enjoy_app {
-         font-size: 24px;
-         color: var(--color-text);
-         font-weight: bold;
-         text-align: center;
-         line-height: 100%;
-         text-align: center;
       }
    </style>
 </html>

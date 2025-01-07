@@ -48,7 +48,8 @@ defmodule Monex.MixProject do
       {:ex_aws_s3, "~> 2.0"},
       {:hackney, "~> 1.9"},
       {:sweet_xml, "~> 0.6"},
-      {:gen_smtp, "~> 1.2"}
+      {:gen_smtp, "~> 1.2"},
+      {:phoenix_swoosh, "~> 1.0"}
     ]
   end
 

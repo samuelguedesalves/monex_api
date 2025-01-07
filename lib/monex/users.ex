@@ -4,8 +4,8 @@ defmodule Monex.Users do
   """
 
   alias Monex.Repo
-  alias Monex.Users.User
   alias Monex.Users.Email
+  alias Monex.Users.User
   alias MonexWeb.AuthToken
 
   require Logger
