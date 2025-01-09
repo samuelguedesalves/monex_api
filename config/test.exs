@@ -21,8 +21,7 @@ config :monex, MonexWeb.Endpoint,
   server: false
 
 # In test we don't send emails.
-config :monex, Monex.Mailer,
-  adapter: Swoosh.Adapters.Test
+config :monex, Monex.Mailer, adapter: Swoosh.Adapters.Test
 
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
