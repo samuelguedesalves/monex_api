@@ -7,15 +7,17 @@ defmodule Monex.Application do
 
   @impl true
   def start(_type, _args) do
+    Oban.Telemetry.attach_default_logger()
+
     children = [
       # Start the Ecto repository
       Monex.Repo,
       # Start the PubSub system
       {Phoenix.PubSub, name: Monex.PubSub},
       # Start the Endpoint (http/https)
-      MonexWeb.Endpoint
-      # Start a worker by calling: Monex.Worker.start_link(arg)
-      # {Monex.Worker, arg}
+      MonexWeb.Endpoint,
+      # Start oban
+      {Oban, Application.fetch_env!(:monex, Oban)}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
