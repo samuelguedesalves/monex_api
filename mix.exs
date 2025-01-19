@@ -43,7 +43,13 @@ defmodule Monex.MixProject do
       {:absinthe_plug, "~> 1.5"},
       {:pbkdf2_elixir, "~> 2.0"},
       {:ex_machina, "~> 2.7.0", only: :test},
-      {:credo, "~> 1.6", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
+      {:ex_aws, "~> 2.1"},
+      {:ex_aws_s3, "~> 2.0"},
+      {:hackney, "~> 1.9"},
+      {:sweet_xml, "~> 0.6"},
+      {:gen_smtp, "~> 1.2"},
+      {:phoenix_swoosh, "~> 1.0"}
     ]
   end
 

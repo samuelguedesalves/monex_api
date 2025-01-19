@@ -4,6 +4,7 @@ defmodule Monex.Users do
   """
 
   alias Monex.Repo
+  alias Monex.Users.Email
   alias Monex.Users.User
   alias MonexWeb.AuthToken
 
@@ -32,7 +33,8 @@ defmodule Monex.Users do
     |> User.changeset_create()
     |> Repo.insert()
     |> case do
-      {:ok, _user} = result ->
+      {:ok, user} = result ->
+        Email.welcome(user)
         Logger.info("user successfully created")
         result
 

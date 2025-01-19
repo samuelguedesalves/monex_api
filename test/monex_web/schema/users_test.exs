@@ -25,31 +25,25 @@ defmodule MonexWeb.Schema.UsersTest do
 
   describe "mutation: create_user" do
     test "when user successfully created", %{conn: conn} do
-      payload = %{
-        input: %{
-          first_name: "Samuel",
-          last_name: "Guedes",
-          email: "guedes.works7@gmail.com",
-          password: "123456"
-        }
-      }
+      user_params = :user_params |> build() |> Map.delete(:balance)
+      payload = %{input: user_params}
 
       assert {:ok, response} = run_graphql(conn, @create_user, payload)
 
       assert %{
                "createUser" => %{
-                 "user" => %{
-                   "balance" => 10_000,
-                   "email" => "guedes.works7@gmail.com",
-                   "first_name" => "Samuel",
-                   "id" => _id,
-                   "inserted_at" => _inserted_at,
-                   "last_name" => "Guedes",
-                   "updated_at" => _updated_at
-                 },
+                 "user" => user_data,
                  "token" => user_token
                }
              } = response
+
+      assert user_data["balance"] == 10_000
+      assert user_data["email"] == user_params.email
+      assert user_data["first_name"] == user_params.first_name
+      assert user_data["last_name"] == user_params.last_name
+      assert is_integer(user_data["id"])
+      assert {:ok, _naive_inserted_at} = NaiveDateTime.from_iso8601(user_data["inserted_at"])
+      assert {:ok, _naive_updated_at} = NaiveDateTime.from_iso8601(user_data["updated_at"])
 
       assert {:ok, _user_id} = MonexWeb.AuthToken.verify(user_token)
     end
@@ -81,14 +75,14 @@ defmodule MonexWeb.Schema.UsersTest do
         |> User.changeset_create()
         |> Repo.insert!()
 
-      %{email: user.email, password: user_params.password}
+      %{user: user}
     end
 
-    test "when user successfully authenticated", %{conn: conn, email: email, password: password} do
+    test "when user successfully authenticated", %{conn: conn, user: user} do
       payload = %{
         input: %{
-          email: email,
-          password: password
+          email: user.email,
+          password: user.password
         }
       }
 
@@ -97,25 +91,28 @@ defmodule MonexWeb.Schema.UsersTest do
       assert %{
                "authUser" => %{
                  "token" => user_token,
-                 "user" => %{
-                   "balance" => 10_000,
-                   "email" => "samuel.guedes@email.com",
-                   "first_name" => "Samuel",
-                   "id" => _id,
-                   "inserted_at" => _inserted_at,
-                   "last_name" => "Guedes",
-                   "updated_at" => _updated_at
-                 }
+                 "user" => user_data
                }
              } = response
 
+      expected_user_data = %{
+        "balance" => user.balance,
+        "email" => user.email,
+        "first_name" => user.first_name,
+        "id" => user.id,
+        "inserted_at" => NaiveDateTime.to_iso8601(user.inserted_at),
+        "last_name" => user.last_name,
+        "updated_at" => NaiveDateTime.to_iso8601(user.updated_at)
+      }
+
+      assert expected_user_data == user_data
       assert {:ok, _user_id} = MonexWeb.AuthToken.verify(user_token)
     end
 
-    test "when user authentication fails", %{conn: conn, email: email} do
+    test "when user authentication fails", %{conn: conn, user: user} do
       payload = %{
         input: %{
-          email: email,
+          email: user.email,
           password: "anything"
         }
       }
@@ -154,28 +151,30 @@ defmodule MonexWeb.Schema.UsersTest do
     end
 
     test "when attributes are valid, should update user", %{conn: conn, user: user} do
+      new_user_email = "different@example.com"
+
       payload = %{
         input: %{
-          email: "different.example@email.com"
+          email: new_user_email
         }
       }
 
-      assert {:ok, response} =
+      assert {:ok, %{"updateUser" => user_data}} =
                conn
                |> authenticated(user)
                |> run_graphql(@update_user, payload)
 
-      assert %{
-               "updateUser" => %{
-                 "balance" => _,
-                 "email" => "different.example@email.com",
-                 "first_name" => _,
-                 "id" => _,
-                 "inserted_at" => _,
-                 "last_name" => _,
-                 "updated_at" => _
-               }
-             } = response
+      expected_user_data = %{
+        "balance" => user.balance,
+        "email" => new_user_email,
+        "first_name" => user.first_name,
+        "id" => user.id,
+        "inserted_at" => NaiveDateTime.to_iso8601(user.inserted_at),
+        "last_name" => user.last_name,
+        "updated_at" => NaiveDateTime.to_iso8601(user.updated_at)
+      }
+
+      assert expected_user_data == user_data
     end
 
     test "when attributes are invalid, should return error", %{conn: conn, user: user} do

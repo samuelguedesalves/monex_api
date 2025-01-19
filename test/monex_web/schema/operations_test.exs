@@ -54,7 +54,7 @@ defmodule MonexWeb.Schema.OperationsTest do
       %{user: sender_user}
     end
 
-    test "when listage works", %{conn: conn, user: user} do
+    test "when list works", %{conn: conn, user: user} do
       assert {:ok, response} =
                conn
                |> authenticated(user)
@@ -84,7 +84,7 @@ defmodule MonexWeb.Schema.OperationsTest do
              ] = transactions
     end
 
-    test "when listage fails due to unauthenticated user", %{conn: conn} do
+    test "when list fails due to unauthenticated user", %{conn: conn} do
       assert {:error, errors, _} = run_graphql(conn, @transactions_from_user, %{page: 1})
 
       assert [%{"message" => "unauthenticated"}] = errors
@@ -106,12 +106,12 @@ defmodule MonexWeb.Schema.OperationsTest do
   describe "mutation: create_transaction" do
     setup do
       {:ok, sender_user} =
-        build(:user_params, %{email: "sender.user@email.com"})
+        build(:user_params, %{email: "sender.user@example.com"})
         |> User.changeset_create()
         |> Repo.insert()
 
       {:ok, receiver_user} =
-        build(:user_params, %{email: "receiver.user@email.com"})
+        build(:user_params, %{email: "receiver.user@example.com", first_name: "Nassim", last_name: "Taleb"})
         |> User.changeset_create()
         |> Repo.insert()
 
@@ -159,6 +159,47 @@ defmodule MonexWeb.Schema.OperationsTest do
 
       assert {:error, errors, _} = run_graphql(conn, @create_transaction, params)
       assert [%{"message" => "unauthenticated"}] = errors
+    end
+
+    test "when receiver user id are invalid, should returns an error", %{
+      conn: conn,
+      sender_user: sender_user
+    } do
+      invalid_receiver_user_id = 99
+
+      params = %{
+        input: %{
+          user_id: invalid_receiver_user_id,
+          amount: 2000
+        }
+      }
+
+      assert {:error, errors, _} =
+               conn
+               |> authenticated(sender_user)
+               |> run_graphql(@create_transaction, params)
+
+      assert [%{"message" => "receiver user not found"}] = errors
+    end
+
+    test "when amount param not is positive, should returns an error", %{
+      conn: conn,
+      sender_user: sender_user,
+      receiver_user_id: receiver_user_id
+    } do
+      params = %{
+        input: %{
+          user_id: receiver_user_id,
+          amount: 0
+        }
+      }
+
+      assert {:error, errors, _} =
+               conn
+               |> authenticated(sender_user)
+               |> run_graphql(@create_transaction, params)
+
+      assert [%{"message" => "amount must be positive"}] = errors
     end
   end
 
@@ -213,6 +254,17 @@ defmodule MonexWeb.Schema.OperationsTest do
                  "to_user" => _
                }
              } = response
+    end
+
+    test "when transaction is not found", %{conn: conn, user: user} do
+      invalid_transaction_id = 99
+
+      assert {:error, errors, _} =
+               conn
+               |> authenticated(user)
+               |> run_graphql(@transaction, %{id: invalid_transaction_id})
+
+      assert [%{"message" => "transaction is not found"}] = errors
     end
 
     test "when fails get transaction due unauthenticated user", %{

@@ -22,3 +22,11 @@ erl_crash.dump
 # Ignore package tarball (built via "mix hex.build").
 monex-*.tar
 
+# Ignore docker-compose volumes
+/volume/
+
+# Ignore vscode
+/.vscode/
+
+# Ignore .env
+/.env

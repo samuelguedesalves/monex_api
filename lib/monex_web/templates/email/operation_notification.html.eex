@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+   <%= render "base.head.html", %{title: @title} %>
+   <body>
+      <h1 class="title"><%= @title %></h1>
+      <p class="message">
+         <%= case @operation_nature do %>
+            <% :send -> %>
+               You was send a transaction to <b><%= @receiver_name %></b>.<br/>
+            <% :received -> %>
+               You was received a transaction from <b><%= @sender_name %></b>.<br/>
+         <% end %>
+        Transaction ID: <%= @transaction_id %><br/>
+        Transaction Value: <%= @transaction_value %>
+      </p>
+   </body>
+   <%= render "base.style.html" %>
+   <style type="text\css">
+      .title {
+         font-size: 30px;
+         color: var(--color-primary);
+         line-height: 100%;
+         text-align: center;
+         margin: 0;
+         margin-bottom: 40px;
+         padding: 0;
+      }
+
+      .message {
+         font-size: 24px;
+         color: var(--color-text);
+         text-align: center;
+         line-height: 100%;
+         margin: 0;
+         margin-bottom: 20px;
+         padding: 0;
+      }
+   </style>
+</html>

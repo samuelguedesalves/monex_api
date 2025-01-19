@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+   <%= render "base.head.html", %{title: "Welcome to Monex!"} %>
+   <body>
+      <h1 class="title">Welcome to Monex!</h1>
+      <p class="message">
+      Dear, <%= @name %>.
+      With Monex you can send and receive transactions.
+      </p>
+      <p class="enjoy_app">Enjoy Monex!</p>
+   </body>
+   <%= render "base.style.html" %>
+   <style type="text\css">
+      .title {
+         font-size: 30px;
+         color: var(--color-primary);
+         line-height: 100%;
+         text-align: center;
+         margin: 0;
+         margin-bottom: 40px;
+         padding: 0;
+      }
+
+      .message {
+         font-size: 24px;
+         color: var(--color-text);
+         text-align: center;
+         line-height: 100%;
+         margin: 0;
+         margin-bottom: 20px;
+         padding: 0;
+      }
+
+      .enjoy_app {
+         font-size: 24px;
+         color: var(--color-text);
+         font-weight: bold;
+         text-align: center;
+         line-height: 100%;
+         text-align: center;
+      }
+   </style>
+</html>
