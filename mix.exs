@@ -49,7 +49,8 @@ defmodule Monex.MixProject do
       {:hackney, "~> 1.9"},
       {:sweet_xml, "~> 0.6"},
       {:gen_smtp, "~> 1.2"},
-      {:phoenix_swoosh, "~> 1.0"}
+      {:phoenix_swoosh, "~> 1.0"},
+      {:oban, "~> 2.18"}
     ]
   end
 

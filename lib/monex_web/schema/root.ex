@@ -16,6 +16,13 @@ defmodule MonexWeb.Schema.Root do
   object :root_query do
     @desc "show current user"
     field :user, type: :user do
+      middleware Authentication
+
+      resolve &UsersResolver.get/2
+    end
+
+    @desc "show user by email"
+    field :user_by_email, type: :user_by_email do
       arg :email, :string
 
       middleware Authentication

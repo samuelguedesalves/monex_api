@@ -23,5 +23,8 @@ config :monex, MonexWeb.Endpoint,
 # In test we don't send emails.
 config :monex, Monex.Mailer, adapter: Swoosh.Adapters.Test
 
+# Configures Oban
+config :monex, Oban, testing: :inline
+
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime

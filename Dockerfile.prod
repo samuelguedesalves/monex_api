@@ -1,0 +1,40 @@
+# ---- Build stage ----
+FROM hexpm/elixir:1.14.0-erlang-25.0-alpine-3.18.0 AS builder
+
+RUN apk add --no-cache build-base git
+
+WORKDIR /app
+
+ENV MIX_ENV=prod
+
+RUN mix local.hex --force && mix local.rebar --force
+
+COPY mix.exs mix.lock ./
+RUN mix deps.get --only prod
+RUN mix deps.compile
+
+COPY config config
+COPY lib lib
+COPY priv priv
+
+RUN mix compile
+RUN mix release
+
+# ---- Runtime stage ----
+FROM alpine:3.18.0
+
+RUN apk add --no-cache libstdc++ openssl ncurses
+
+WORKDIR /app
+
+RUN addgroup -S monex && adduser -S monex -G monex
+USER monex
+
+COPY --from=builder --chown=monex:monex /app/_build/prod/rel/monex ./
+
+ENV PHX_SERVER=true \
+    PORT=4000
+
+EXPOSE 4000
+
+CMD ["bin/monex", "start"]
