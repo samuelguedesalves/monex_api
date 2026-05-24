@@ -1,23 +1,38 @@
 services:
+  app:
+    container_name: "app-monex"
+    build: .
+    ports:
+      - "4000:4000"
+    environment:
+      DB_HOST: "db"
+    volumes:
+      - .:/app
+      - deps:/app/deps
+      - build:/app/_build
+    depends_on:
+      - db
   db:
-    image: postgres:latest
+    container_name: "db-monex"
+    image: postgres:17
     restart: always
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     ports:
-      - '5432:5432'
-    volumes: 
+      - "5432:5432"
+    volumes:
       - db:/var/lib/postgresql/data
   localstack:
-    container_name: "${LOCALSTACK_DOCKER_NAME:-localstack-monex}"
+    container_name: "localstack-monex"
     image: localstack/localstack
     ports:
-      - "127.0.0.1:4566:4566"            # LocalStack Gateway
-      - "127.0.0.1:4510-4559:4510-4559"  # external services port range
+      - "127.0.0.1:4566:4566" # LocalStack Gateway
+      - "127.0.0.1:4510-4559:4510-4559" # external services port range
     environment:
       # LocalStack configuration: https://docs.localstack.cloud/references/configuration/
       - DEBUG=${DEBUG:-0}
+      - LOCALSTACK_AUTH_TOKEN=ls-DOzunEca-HudO-4633-POcI-CilUwaRu8273
     volumes:
       - "./localstack-init.sh:/etc/localstack/init/ready.d/localstack-init.sh"
       - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
@@ -25,4 +40,8 @@ services:
 
 volumes:
   db:
+    driver: local
+  deps:
+    driver: local
+  build:
     driver: local
