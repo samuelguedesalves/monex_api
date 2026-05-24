@@ -20,7 +20,7 @@ jobs:
     services:
       postgres:
         image: postgres:12
-        ports: ['5432:5432']
+        ports: ["5432:5432"]
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -36,8 +36,8 @@ jobs:
     strategy:
       # Specify the OTP and Elixir versions to use when building and running the workflow steps.
       matrix:
-        otp: ['25.0']       # Define the OTP version [required]
-        elixir: ['1.14.0']    # Define the elixir version [required]
+        otp: ["27.0"] # Define the OTP version [required]
+        elixir: ["1.18.0-otp-27"] # Define the elixir version [required]
 
     steps:
       # Step: Setup Elixir + Erlang image as the base.
