@@ -99,6 +99,7 @@ defmodule MonexWeb.Schema.OperationsTest do
       from_user
       to_user
       processed_at
+      status
     }
   }
   """
@@ -141,7 +142,8 @@ defmodule MonexWeb.Schema.OperationsTest do
                  "from_user" => _from_user,
                  "id" => _id,
                  "processed_at" => _processed_at,
-                 "to_user" => _to_user
+                 "to_user" => _to_user,
+                 "status" => "done"
                }
              } = response
     end
@@ -200,6 +202,30 @@ defmodule MonexWeb.Schema.OperationsTest do
                |> run_graphql(@create_transaction, params)
 
       assert [%{"message" => "amount must be positive"}] = errors
+    end
+
+    test "when sender has insufficient balance, transaction ends with status refuse", %{
+      conn: conn,
+      sender_user: sender_user,
+      receiver_user_id: receiver_user_id
+    } do
+      params = %{
+        input: %{
+          user_id: receiver_user_id,
+          amount: sender_user.balance + 1
+        }
+      }
+
+      assert {:ok, response} =
+               conn
+               |> authenticated(sender_user)
+               |> run_graphql(@create_transaction, params)
+
+      assert %{
+               "createTransaction" => %{
+                 "status" => "refuse"
+               }
+             } = response
     end
   end
 

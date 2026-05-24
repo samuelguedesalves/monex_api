@@ -31,7 +31,7 @@ defmodule Monex.MixProject do
     [
       {:phoenix, "~> 1.6.10"},
       {:phoenix_ecto, "~> 4.4"},
-      {:ecto_sql, "~> 3.6"},
+      {:ecto_sql, "~> 3.10"},
       {:postgrex, ">= 0.0.0"},
       {:phoenix_live_dashboard, "~> 0.6"},
       {:swoosh, "~> 1.3"},
@@ -49,7 +49,9 @@ defmodule Monex.MixProject do
       {:hackney, "~> 1.9"},
       {:sweet_xml, "~> 0.6"},
       {:gen_smtp, "~> 1.2"},
-      {:phoenix_swoosh, "~> 1.0"}
+      {:phoenix_swoosh, "~> 1.0"},
+      {:oban, "~> 2.19"},
+      {:igniter, "~> 0.5", only: [:dev]}
     ]
   end
 

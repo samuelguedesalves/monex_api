@@ -12,6 +12,7 @@ defmodule Monex.Application do
       Monex.Repo,
       # Start the PubSub system
       {Phoenix.PubSub, name: Monex.PubSub},
+      {Oban, Application.fetch_env!(:monex, Oban)},
       # Start the Endpoint (http/https)
       MonexWeb.Endpoint
       # Start a worker by calling: Monex.Worker.start_link(arg)

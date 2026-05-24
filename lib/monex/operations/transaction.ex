@@ -6,6 +6,7 @@ defmodule Monex.Operations.Transaction do
   alias Monex.Users.User
 
   @params [:amount, :from_user, :to_user]
+  @allowed_statuses ~w(pending processing done refuse)
 
   @derive {Jason.Encoder, except: [:__meta__]}
 
@@ -13,6 +14,7 @@ defmodule Monex.Operations.Transaction do
     field :amount, :integer
     field :from_user, :id
     field :to_user, :id
+    field :status, :string
 
     has_one :sender_user, User, foreign_key: :id, references: :from_user
     has_one :receiver_user, User, foreign_key: :id, references: :to_user
@@ -30,5 +32,15 @@ defmodule Monex.Operations.Transaction do
     )
     |> foreign_key_constraint(:to_user)
     |> foreign_key_constraint(:from_user)
+  end
+
+  def status_changeset(transaction, status) do
+    transaction
+    |> cast(%{status: status}, [:status])
+    |> validate_inclusion(:status, @allowed_statuses)
+    |> check_constraint(:status,
+      name: :status_must_be_valid,
+      message: "must be a valid status"
+    )
   end
 end

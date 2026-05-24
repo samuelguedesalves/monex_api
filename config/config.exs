@@ -1,6 +1,12 @@
 # General application configuration
 import Config
 
+config :monex, Oban,
+  engine: Oban.Engines.Basic,
+  notifier: Oban.Notifiers.Postgres,
+  queues: [default: 10, transactions: 10],
+  repo: Monex.Repo
+
 config :monex, ecto_repos: [Monex.Repo]
 
 # Configures the endpoint

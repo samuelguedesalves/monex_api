@@ -1,4 +1,5 @@
 import Config
+config :monex, Oban, testing: :inline
 
 # Configure your database
 #

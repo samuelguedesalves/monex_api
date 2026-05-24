@@ -9,6 +9,7 @@ defmodule MonexWeb.Schema.Operations do
     field :to_user, non_null(:integer), description: "user that receiver the transaction"
 
     field :processed_at, non_null(:datetime), description: "datetime when the transaction is processed"
+    field :status, non_null(:string), description: "transaction lifecycle status"
   end
 
   object :transactions_pagination do
